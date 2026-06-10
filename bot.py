@@ -36,15 +36,17 @@ class ApprovalView(View):
         self.job_name = job_name
         self.build_number = build_number
 
-
     @discord.ui.button(label="Zatwierdź wdrożenie", style=discord.ButtonStyle.success, custom_id="approve_btn")
     async def approve(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         url = f"{JENKINS_URL}/job/{self.job_name}/{self.build_number}/input/Approval/proceed"
         
+        payload = {'json': '{}'}
+        
         async with aiohttp.ClientSession() as session:
-            async with session.post(url, auth=get_jenkins_auth()) as response:
+            async with session.post(url, auth=get_jenkins_auth(), data=payload) as response:
                 if response.status in [200, 302]:
+                    # Naprawiona, połączona linia wysyłania wiadomości:
                     await interaction.followup.send(f"Wdrożenie #{self.build_number} zostało **zaakceptowane** przez {interaction.user.mention}! Pipeline rusza dalej.")
                     self.stop()
                 else:
@@ -55,8 +57,10 @@ class ApprovalView(View):
         await interaction.response.defer()
         url = f"{JENKINS_URL}/job/{self.job_name}/{self.build_number}/input/Approval/abort"
         
+        payload = {'json': '{}'}
+        
         async with aiohttp.ClientSession() as session:
-            async with session.post(url, auth=get_jenkins_auth()) as response:
+            async with session.post(url, auth=get_jenkins_auth(), data=payload) as response:
                 if response.status in [200, 302]:
                     await interaction.followup.send(f"Wdrożenie #{self.build_number} zostało **odrzucone** przez {interaction.user.mention}. Pipeline przerwany.")
                     self.stop()
