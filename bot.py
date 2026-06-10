@@ -45,8 +45,7 @@ class ApprovalView(View):
         async with aiohttp.ClientSession() as session:
             async with session.post(url, auth=get_jenkins_auth()) as response:
                 if response.status in [200, 302]:
-                    await interaction.followup.send
-                    (f"Wdrożenie #{self.build_number} zostało **zaakceptowane** przez {interaction.user.mention}! Pipeline rusza dalej.")
+                    await interaction.followup.send(f"Wdrożenie #{self.build_number} zostało **zaakceptowane** przez {interaction.user.mention}! Pipeline rusza dalej.")
                     self.stop()
                 else:
                     await interaction.followup.send(f"Nie udało się zatwierdzić buildu w Jenkinsie. Kod błędu: {response.status}")
